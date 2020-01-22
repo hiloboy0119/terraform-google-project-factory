@@ -237,7 +237,7 @@ resource "null_resource" "disable_default_service_account" {
   provisioner "local-exec" {
     when = create
     command = <<-EOT
-    ${path.module}/scripts/modify-service-account.sh" --project_id='${google_project.main.project_id}' \
+    ${path.module}/scripts/modify-service-account.sh --project_id='${google_project.main.project_id}' \
     --sa_id='${data.null_data_source.default_service_account.outputs["email"]}' \
     --credentials_path='${var.credentials_path}' \
     --impersonate-service-account='${var.impersonate_service_account}' \
