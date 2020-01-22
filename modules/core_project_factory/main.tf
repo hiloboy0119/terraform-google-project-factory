@@ -183,22 +183,21 @@ data "null_data_source" "default_service_account" {
 /******************************************
   Default compute service account deletion
  *****************************************/
-module "gcloud_delete" {
-  source  = "terraform-google-modules/gcloud/google"
-  version = "~> 0.3"
+resource "null_resource" "delete_default_service_account" {
+  count = var.default_service_account == "delete" ? 1 : 0
 
-  enabled = var.default_service_account == "delete"
-
-  create_cmd_entrypoint = "${path.module}/scripts/modify-service-account.sh"
-  create_cmd_body       = <<-EOT
-    --project_id='${google_project.main.project_id}' \
+  provisioner "local-exec" {
+    when    = create
+    command = <<-EOT
+    ${path.module}/scripts/modify-service-account.sh --project_id='${google_project.main.project_id}' \
     --sa_id='${data.null_data_source.default_service_account.outputs["email"]}' \
     --credentials_path='${var.credentials_path}' \
     --impersonate-service-account='${var.impersonate_service_account}' \
     --action='delete'
-  EOT
+    EOT
+  }
 
-  create_cmd_triggers = {
+  triggers = {
     default_service_account = data.null_data_source.default_service_account.outputs["email"]
     activated_apis          = join(",", local.activate_apis)
     project_services        = module.project_services.project_id
@@ -208,22 +207,21 @@ module "gcloud_delete" {
 /*********************************************
   Default compute service account deprivilege
  ********************************************/
-module "gcloud_deprivilege" {
-  source  = "terraform-google-modules/gcloud/google"
-  version = "~> 0.3"
+resource "null_resource" "deprivilege_default_service_account" {
+  count = var.default_service_account == "deprivilege" ? 1 : 0
 
-  enabled = var.default_service_account == "deprivilege"
-
-  create_cmd_entrypoint = "${path.module}/scripts/modify-service-account.sh"
-  create_cmd_body       = <<-EOT
-    --project_id='${google_project.main.project_id}' \
+  provisioner "local-exec" {
+    when    = create
+    command = <<-EOT
+    ${path.module}/scripts/modify-service-account.sh --project_id='${google_project.main.project_id}' \
     --sa_id='${data.null_data_source.default_service_account.outputs["email"]}' \
     --credentials_path='${var.credentials_path}' \
     --impersonate-service-account='${var.impersonate_service_account}' \
     --action='deprivilege'
-  EOT
+    EOT
+  }
 
-  create_cmd_triggers = {
+  triggers = {
     default_service_account = data.null_data_source.default_service_account.outputs["email"]
     activated_apis          = join(",", local.activate_apis)
     project_services        = module.project_services.project_id
@@ -233,22 +231,21 @@ module "gcloud_deprivilege" {
 /******************************************
   Default compute service account disable
  *****************************************/
-module "gcloud_disable" {
-  source  = "terraform-google-modules/gcloud/google"
-  version = "~> 0.3"
+resource "null_resource" "disable_default_service_account" {
+  count = var.default_service_account == "disable" ? 1 : 0
 
-  enabled = var.default_service_account == "disable"
-
-  create_cmd_entrypoint = "${path.module}/scripts/modify-service-account.sh"
-  create_cmd_body       = <<-EOT
-    --project_id='${google_project.main.project_id}' \
+  provisioner "local-exec" {
+    when = create
+    command = <<-EOT
+    ${path.module}/scripts/modify-service-account.sh" --project_id='${google_project.main.project_id}' \
     --sa_id='${data.null_data_source.default_service_account.outputs["email"]}' \
     --credentials_path='${var.credentials_path}' \
     --impersonate-service-account='${var.impersonate_service_account}' \
     --action='disable'
-  EOT
+    EOT
+  }
 
-  create_cmd_triggers = {
+  triggers = {
     default_service_account = data.null_data_source.default_service_account.outputs["email"]
     activated_apis          = join(",", local.activate_apis)
     project_services        = module.project_services.project_id
